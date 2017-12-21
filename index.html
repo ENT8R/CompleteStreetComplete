@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+  <title>Complete StreetComplete</title>
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="assets/icon.png">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+</head>
+
+<body>
+
+  <header>
+    <nav class="indigo">
+      <div class="nav-wrapper hide-on-med-and-down">
+        <div>
+          <a class="center brand-logo">Complete StreetComplete</a>
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <main>
+    <div id="content" style="display:none;">
+      <div id="evaluations" class="row">
+        <h3 class="center">Evaluations</h3>
+        <div class="divider"></div>
+      </div>
+      <div id="translations" class="row">
+        <h3 class="center">Translations</h3>
+        <div class="divider"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mustache.js template -->
+  <script id="chart-template" type="x-tmpl-mustache">
+    <div class="col s12 m6 l4">
+      <h4>{{title}}</h4>
+      <div id="{{id}}"></div>
+    </div>
+  </script>
+
+  <!-- Scripts -->
+  <script src="js/jquery/jquery-3.2.1.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="js/mustache.min.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>
