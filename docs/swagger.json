@@ -1,0 +1,138 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "This is a simple API for modifying the results displayed on the website of CompleteStreetComplete",
+    "version" : "0.1.0",
+    "title" : "CompleteStreetComplete API",
+    "contact" : {
+      "email" : "info.ent8r@gmail.com"
+    },
+    "license" : {
+      "name" : "GPL-3.0",
+      "url" : "https://www.gnu.org/licenses/gpl-3.0.html"
+    }
+  },
+  "host" : "ent8r.lima-city.de",
+  "basePath" : "/CompleteStreetComplete/api",
+  "tags" : [ {
+    "name" : "Admins",
+    "description" : "Secured Admin-only calls"
+  }, {
+    "name" : "Developers",
+    "description" : "Operations available to all developers"
+  } ],
+  "paths" : {
+    "/get" : {
+      "get" : {
+        "tags" : [ "Developers" ],
+        "summary" : "Get all datasets",
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "JSON object containing the data"
+          }
+        }
+      }
+    },
+    "/get/{id}" : {
+      "get" : {
+        "tags" : [ "Developers" ],
+        "summary" : "Get the data by a specific id",
+        "description" : "By passing in a correct id, you can search for\navailable results\n",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id for the dataset",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "JSON object containing the data"
+          },
+          "404" : {
+            "description" : "Could not find data with specified id!"
+          }
+        }
+      }
+    },
+    "/post/{id}" : {
+      "post" : {
+        "tags" : [ "Admins" ],
+        "summary" : "Adds or updates a specific dataset",
+        "consumes" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id for the dataset",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "json",
+          "description" : "The JSON object which contains all necessary values",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/json"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Created"
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/delete/{id}" : {
+      "delete" : {
+        "tags" : [ "Admins" ],
+        "summary" : "Delete a dataset by a specific id",
+        "description" : "By passing in a correct id, you can delete a dataset if it exists\n",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id for the dataset",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "JSON object containing the data"
+          },
+          "404" : {
+            "description" : "Could not find data with specified id!"
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "basicAuth" : {
+      "type" : "basic"
+    }
+  },
+  "definitions" : {
+    "json" : {
+      "type" : "object",
+      "required" : [ "values" ],
+      "properties" : {
+        "values" : {
+          "$ref" : "#/definitions/postid_values"
+        }
+      }
+    },
+    "postid_values" : {
+      "properties" : {
+        "de" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

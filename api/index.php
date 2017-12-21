@@ -41,7 +41,7 @@ $app->get('/get/{id}', function ($request, $response, $args) {
   if ($json[0][$id]) {
     return $response->withJson($json[0][$id]);
   } else {
-    return $response->withStatus(400)->withJson(["error" => "Could not find data with specified id!"]);
+    return $response->withStatus(404)->withJson(["error" => "Could not find data with specified id!"]);
   }
 });
 
@@ -99,7 +99,7 @@ $app->delete('/delete/{id}', function ($request, $response, $args) {
 
     return $response->withJson($json);
   } else {
-    return $response->withStatus(400)->withJson(["error" => "Could not find data with specified id!"]);
+    return $response->withStatus(404)->withJson(["error" => "Could not find data with specified id!"]);
   }
 });
 

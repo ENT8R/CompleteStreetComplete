@@ -1,0 +1,159 @@
+openapi: 3.0.0
+
+servers:
+  - description: CompleteStreetComplete API
+    url: https://ent8r.lima-city.de/CompleteStreetComplete/api
+
+info:
+  description: This is a simple API for modifying the results displayed on the website of CompleteStreetComplete
+  version: "0.1.0"
+  title: CompleteStreetComplete API
+  contact:
+    email: info.ent8r@gmail.com
+  license:
+    name: GPL-3.0
+    url: 'https://www.gnu.org/licenses/gpl-3.0.html'
+
+tags:
+  - name: admins
+    description: Secured Admin-only calls
+  - name: developers
+    description: Operations available to regular developers
+
+paths:
+  /get:
+    get:
+      tags:
+        - developers
+      summary: Adds or updates a specific dataset
+      operationId: getData
+      responses:
+        '200':
+          description: JSON object containing the data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/getData'
+
+  /get/{id}:
+    get:
+      tags:
+        - developers
+      summary: Get the data by a specific id
+      operationId: getDataById
+      description: |
+        By passing in a correct id, you can search for
+        available results
+      parameters:
+        - in: path
+          name: id
+          description: The id for the dataset
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/getDataById'
+        '404':
+          description: Could not find data with specified id!
+
+  /post/{id}:
+    post:
+      tags:
+        - admins
+      summary: Adds or updates a specific dataset
+      operationId: addData
+      description: Adds or updates data
+      responses:
+        '200':
+          description: Created
+      parameters:
+        - in: path
+          name: id
+          description: The id for the dataset
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/post'
+            description: JSON object which contains all necessary values
+            required: true
+
+  /delete/{id}:
+    delete:
+      tags:
+        - admins
+      summary: Delete a dataset by a specific id
+      description: |
+        By passing in a correct id, you can delete a dataset if it exists
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          description: The id for the dataset
+          required: true
+      responses:
+        200:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/getData'
+          description: JSON object containing the data
+        404:
+          description: Could not find data with specified id!
+
+components:
+  schemas:
+
+    getData:
+      type: object
+      properties:
+        1:
+          type: object
+          example:
+            $ref: '#/components/schemas/getDataById'
+
+    getDataById:
+      type: object
+      required:
+        - name
+        - type
+        - values
+      properties:
+        name:
+          type: string
+          example: Are peak features common in your country?
+        type:
+          type: string
+          example: chart
+        values:
+          $ref: '#/components/schemas/values'
+
+    values:
+      required:
+        - name
+      properties:
+        en:
+          type: object
+          example:
+            name:
+              Yes: 466
+              No: 38
+        de:
+          type: object
+          example:
+            name:
+              Yes: 463
+              No: 27
+      type: object

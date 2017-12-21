@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+  <title>Complete StreetComplete Documentation</title>
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="../assets/icon.png">
+
+  <link rel="stylesheet" type="text/css" href="swagger-ui.css">
+
+</head>
+
+<body id="body">
+
+  <!-- Scripts -->
+  <script src="swagger-ui-bundle.js"></script>
+  <script src="swagger-ui-standalone-preset.js"></script>
+
+  <script>
+    window.onload = function() {
+
+      const ui = SwaggerUIBundle({
+        url: "swagger.json",
+        dom_id: '#body',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      })
+      window.ui = ui
+    }
+  </script>
+
+</body>
+
+</html>
