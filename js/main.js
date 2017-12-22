@@ -1,5 +1,6 @@
 const plots = [
   'bar',
+  'bar-horizontal',
   'pie'
 ];
 
@@ -18,55 +19,76 @@ function init(data) {
     let type = item.type;
     let values = item.values;
 
+    let containerID = generateID();
+
+    let containerTemplate = $('#group-template').html();
+    Mustache.parse(containerTemplate);
+    let container = Mustache.render(containerTemplate, {
+      name: name,
+      id: containerID
+    });
+    if (type == types[0]) {
+      $('#evaluations').append(container);
+    } else if (type == types[1]) {
+      $('#translations').append(container);
+    }
+
     for (let language in values) {
       let singleValues = values[language];
 
       let plot;
-      let x = [];
-      let y = [];
+      let labels = [];
+      let data = [];
 
       for (let answer in singleValues) {
         let amount = singleValues[answer];
-        x.push(answer);
-        y.push(amount);
+        labels.push(answer);
+        data.push(amount);
       }
 
       switch (plots[Math.floor(Math.random() * plots.length)]) {
         case plots[0]:
           plot = [{
-            x: x,
-            y: y,
+            x: labels,
+            y: data,
             type: 'bar'
           }];
           break;
+
         case plots[1]:
           plot = [{
-            labels: x,
-            values: y,
+            x: data,
+            y: labels,
+            type: 'bar',
+            orientation: 'h'
+          }];
+          break;
+
+        case plots[2]:
+          plot = [{
+            labels: labels,
+            values: data,
             type: 'pie'
           }];
           break;
       }
 
-      let id = generateID();
+      let plotID = generateID();
 
-      let template = $('#chart-template').html();
-      Mustache.parse(template);
-      let rendered = Mustache.render(template, {
+      let plotTemplate = $('#plot-template').html();
+      Mustache.parse(plotTemplate);
+      let rendered = Mustache.render(plotTemplate, {
         title: name + ' (' + language + ')',
-        id: id
+        language: language,
+        id: plotID
       });
 
       if (!$('#content').is(":visible")) $('#content').show();
 
-      if (type == types[0]) {
-        $('#evaluations').append(rendered);
-      } else if (type == types[1]) {
-        $('#translations').append(rendered);
-      }
+      $('#' + containerID).append(rendered);
 
       //Initialize a new plot
-      Plotly.newPlot(id, plot, null, {
+      Plotly.newPlot(plotID, plot, null, {
         displayModeBar: false
       });
     }
