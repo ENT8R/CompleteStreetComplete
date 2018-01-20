@@ -1,58 +1,18 @@
 [{
   "1": {
     "name": "Are peak features common in your country?",
-    "type": "chart",
-    "values": {
-      "en": {
-        "Yes": 466,
-        "No": 38
-      },
-      "de": {
-        "Yes": 463,
-        "No": 27
-      }
-    }
+    "type": "chart"
   },
   "2": {
     "name": "Are tactile pavings common in your country?",
-    "type": "chart",
-    "values": {
-      "en": {
-        "Yes": 58,
-        "No": 11
-      },
-      "fr": {
-        "Yes": 23,
-        "No": 78
-      },
-      "de": {
-        "Yes": 54,
-        "No": 45
-      }
-    }
+    "type": "chart"
   },
   "3": {
+    "name": "Do postboxes usually have collection times in your country?",
+    "type": "chart"
+  },
+  "4": {
     "name": "How do you call this kind of shop in your language?",
-    "type": "translation",
-    "values": {
-      "en": {
-        "bakery": 100,
-        "bakrey": 4
-      },
-      "fr": {
-        "boulangerie": 124,
-        "boulangerei": 4
-      },
-      "de": {
-        "Bäckerei": 146,
-        "backerei": 12,
-        "bckerei": 3
-      },
-      "dk": {
-        "bøgeri": 5,
-        "bageri": 16,
-        "Bågeri": 2
-      }
-    }
+    "type": "translation"
   }
 }]

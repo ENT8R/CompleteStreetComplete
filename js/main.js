@@ -27,6 +27,11 @@ function init(data) {
       name: name,
       id: containerID
     });
+
+    if (!values || values.length == 0) {
+      continue;
+    }
+
     if (type == types[0]) {
       $('#evaluations').append(container);
     } else if (type == types[1]) {
