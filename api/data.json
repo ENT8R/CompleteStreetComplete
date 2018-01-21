@@ -1,14 +1,16 @@
-[{
-  "1": {
-    "name": "Are tactile pavings common in your country?",
-    "type": "chart"
-  },
-  "2": {
-    "name": "Do postboxes usually have collection times in your country?",
-    "type": "chart"
-  },
-  "3": {
-    "name": "How do you call this kind of shop in your language?",
-    "type": "translation"
-  }
-}]
+[
+    {
+        "1": {
+            "name": "Are tactile pavings common in your country?",
+            "type": "chart"
+        },
+        "2": {
+            "name": "Do postboxes usually have collection times in your country?",
+            "type": "chart"
+        },
+        "3": {
+            "name": "How do you call this kind of shop in your language?",
+            "type": "translation"
+        }
+    }
+]
