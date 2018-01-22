@@ -59,12 +59,22 @@ $app->post('/answer/{id}', function ($request, $response, $args) {
   }
 
   //Loop through values to set answer and their amounts
-  foreach ($body['values'] as $language => $name) {
-    $amount = 0;
-    if (isset($file[0][$id]['values'][$language][$name])) {
-      $amount = getAmount($file, $id, $language, $name);
+  if (getType($file, $id) != "image") {
+    foreach ($body['values'] as $language => $name) {
+      $amount = 0;
+      if (isset($file[0][$id]['values'][$language][$name])) {
+        $amount = getAmount($file, $id, $language, $name);
+      }
+      $file[0][$id]['values'][$language][$name] = $amount + 1;
     }
-    $file[0][$id]['values'][$language][$name] = $amount + 1;
+  }
+  else {
+    foreach ($body['values'] as $language => $values) {
+      $urls = explode(',', $values);
+      foreach ($urls as $singleUrl) {
+        array_push($file[0][$id]['values'][$language], $singleUrl);
+      }
+    }
   }
 
   saveFile($file);
@@ -106,20 +116,34 @@ $app->post('/revert/{id}', function ($request, $response, $args) {
   }
 
   //Loop through values to decrease answer by 1
-  foreach ($body['values'] as $language => $name) {
-    if (isset($file[0][$id]['values'][$language][$name])) {
-      $amount = getAmount($file, $id, $language, $name);
+  if (getType($file, $id) != "image") {
+    foreach ($body['values'] as $language => $name) {
+      if (isset($file[0][$id]['values'][$language][$name])) {
+        $amount = getAmount($file, $id, $language, $name);
 
-      //Delete the child "values" from the file if the amount is smaller than or equal to 1
-      if ($amount > 1) {
-        $file[0][$id]['values'][$language][$name] = $amount - 1;
+        //Delete the child "values" from the file if the amount is smaller than or equal to 1
+        if ($amount > 1) {
+          $file[0][$id]['values'][$language][$name] = $amount - 1;
+        } else {
+          unset($file[0][$id]['values']);
+        }
+
+        saveFile($file);
       } else {
-        unset($file[0][$id]['values']);
+        return $response->withStatus(404)->withJson(["error" => "No data found for this language and value!"]);
       }
-
-      saveFile($file);
-    } else {
-      return $response->withStatus(404)->withJson(["error" => "No data found for this language and value!"]);
+    }
+  } else {
+    foreach ($body['values'] as $language => $values) {
+      $urls = explode(',', $values);
+      foreach ($urls as $singleUrl) {
+        if (in_array($singleUrl, $file[0][$id]['values'][$language])) {
+          unset($file[0][$id]['values'][$language][$singleUrl]);
+          saveFile($file);
+        } else {
+          return $response->withStatus(404)->withJson(["error" => "No data found for this language and value!"]);
+        }
+      }
     }
   }
 
@@ -147,8 +171,13 @@ $app->post('/create/{id}', function ($request, $response, $args) {
 
   //Set the name of the dataset
   $file[0][$id]['name'] = $body['name'];
-  //Set the new type
-  $file[0][$id]['type'] = $body['type'];
+
+  if (isPossibleType($body['type'])) {
+    //Set the new type
+    $file[0][$id]['type'] = $body['type'];
+  } else {
+    return $response->withStatus(400)->withJson(["error" => "The specified type is not allowed!"]);
+  }
 
   saveFile($file);
 
@@ -176,8 +205,12 @@ $app->post('/update/{id}', function ($request, $response, $args) {
     $file[0][$id]['name'] = $body['name'];
   }
   if (isset($body['type'])) {
-    //Set the new type
-    $file[0][$id]['type'] = $body['type'];
+    if (isPossibleType($body['type'])) {
+      //Set the new type
+      $file[0][$id]['type'] = $body['type'];
+    } else {
+      return $response->withStatus(400)->withJson(["error" => "The specified type is not allowed!"]);
+    }
   }
 
   saveFile($file);
@@ -197,6 +230,22 @@ function getFile()
 function getAmount($file, $id, $language, $name)
 {
   return $file[0][$id]['values'][$language][$name];
+}
+function getType($file, $id)
+{
+  return $file[0][$id]['type'];
+}
+function isPossibleType($type)
+{
+  if ($type == "chart") {
+    return true;
+  } else if ($type == "translation") {
+    return true;
+  } else if ($type == "image") {
+    return true;
+  }
+
+  return false;
 }
 
 $app->run();
