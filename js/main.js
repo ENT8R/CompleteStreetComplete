@@ -6,7 +6,8 @@ const plots = [
 
 const types = [
   'chart',
-  'translation'
+  'translation',
+  'image'
 ]
 
 function init(data) {
@@ -36,6 +37,8 @@ function init(data) {
       $('#evaluations').append(container);
     } else if (type == types[1]) {
       $('#translations').append(container);
+    } else if (type == types[2]) {
+      $('#images').append(container);
     }
 
     for (let language in values) {

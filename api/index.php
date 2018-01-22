@@ -59,7 +59,7 @@ $app->post('/answer/{id}', function ($request, $response, $args) {
   }
 
   //Loop through values to set answer and their amounts
-  if (getType($file, $id) != "image") {
+  if (getTypeOfDataset($file, $id) != "image") {
     foreach ($body['values'] as $language => $name) {
       $amount = 0;
       if (isset($file[0][$id]['values'][$language][$name])) {
@@ -116,7 +116,7 @@ $app->post('/revert/{id}', function ($request, $response, $args) {
   }
 
   //Loop through values to decrease answer by 1
-  if (getType($file, $id) != "image") {
+  if (getTypeOfDataset($file, $id) != "image") {
     foreach ($body['values'] as $language => $name) {
       if (isset($file[0][$id]['values'][$language][$name])) {
         $amount = getAmount($file, $id, $language, $name);
@@ -231,7 +231,7 @@ function getAmount($file, $id, $language, $name)
 {
   return $file[0][$id]['values'][$language][$name];
 }
-function getType($file, $id)
+function getTypeOfDataset($file, $id)
 {
   return $file[0][$id]['type'];
 }
