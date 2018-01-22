@@ -67,12 +67,16 @@ $app->post('/answer/{id}', function ($request, $response, $args) {
       }
       $file[0][$id]['values'][$language][$name] = $amount + 1;
     }
-  }
-  else {
-    foreach ($body['values'] as $language => $values) {
-      $urls = explode(',', $values);
-      foreach ($urls as $singleUrl) {
-        array_push($file[0][$id]['values'][$language], $singleUrl);
+  } else {
+    foreach ($body['values'] as $language => $urls) {
+      if ($file[0][$id]['values'][$language]) {
+        foreach ($urls as $singleUrl) {
+          if (!isset($file[0][$id]['values'][$language]) && !$file[0][$id]['values'][$language][$singleUrl]) {
+            array_push($file[0][$id]['values'][$language], $singleUrl);
+          }
+        }
+      } else {
+        $file[0][$id]['values'][$language] = $urls;
       }
     }
   }
@@ -134,11 +138,10 @@ $app->post('/revert/{id}', function ($request, $response, $args) {
       }
     }
   } else {
-    foreach ($body['values'] as $language => $values) {
-      $urls = explode(',', $values);
+    foreach ($body['values'] as $language => $urls) {
       foreach ($urls as $singleUrl) {
-        if (in_array($singleUrl, $file[0][$id]['values'][$language])) {
-          unset($file[0][$id]['values'][$language][$singleUrl]);
+        if (($key = array_search($singleUrl, $file[0][$id]['values'][$language])) !== false) {
+          unset($file[0][$id]['values'][$language][$key]);
           saveFile($file);
         } else {
           return $response->withStatus(404)->withJson(["error" => "No data found for this language and value!"]);
