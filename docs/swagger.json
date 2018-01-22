@@ -56,10 +56,10 @@
         }
       }
     },
-    "/post/{id}" : {
+    "/answer/{id}" : {
       "post" : {
         "tags" : [ "Admins" ],
-        "summary" : "Adds or updates a specific dataset",
+        "summary" : "Updates a specific dataset with the given answer",
         "consumes" : [ "application/json" ],
         "parameters" : [ {
           "name" : "id",
@@ -104,6 +104,99 @@
           },
           "404" : {
             "description" : "Could not find data with specified id!"
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/revert/{id}" : {
+      "post" : {
+        "tags" : [ "Admins" ],
+        "summary" : "Reverts an answer by decreasing the amount",
+        "description" : "By passing in a correct id and request body, you can revert an answer if it exists\n",
+        "consumes" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id for the dataset",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "json",
+          "description" : "The JSON object which contains all necessary values",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/json"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Operation successful"
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/create/{id}" : {
+      "post" : {
+        "tags" : [ "Admins" ],
+        "summary" : "Creates a new dataset with the given values",
+        "description" : "By passing in a correct id and request body, you can create a new dataset for a new question\n",
+        "consumes" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id for the dataset",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "json",
+          "description" : "The JSON object which contains all necessary values",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/json"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Operation successful"
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/update/{id}" : {
+      "post" : {
+        "tags" : [ "Admins" ],
+        "summary" : "Updates a dataset with the given values",
+        "description" : "By passing in a correct id and request body, you can update an existing dataset\n",
+        "consumes" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id for the dataset",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "json",
+          "description" : "The JSON object which contains all necessary values",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/json"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Operation successful"
           }
         },
         "security" : [ {

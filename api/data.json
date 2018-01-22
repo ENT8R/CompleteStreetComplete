@@ -9,8 +9,8 @@
             "type": "chart"
         },
         "3": {
-            "name": "How do you call this kind of shop in your language?",
-            "type": "translation"
+            "name": "How do walking signs look like in your country?",
+            "type": "image"
         }
     }
 ]
