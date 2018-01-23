@@ -40,11 +40,14 @@
         <div class="divider"></div>
       </div>
       <div id="translations" class="row">
-        <h3 class="center">Translations</h3>
-        <div class="divider"></div>
+        <!-- currently not used-->
+        <!--<h3 class="center">Translations</h3>
+        <div class="divider"></div>-->
       </div>
     </div>
   </main>
+
+  <div id="modals"></div>
 
   <!-- Mustache.js templates -->
   <script id="group-template" type="x-tmpl-mustache">
@@ -55,13 +58,26 @@
     <div class="divider"></div>
   </script>
 
-  <script id="plot-template" type="x-tmpl-mustache">
+  <script id="element-template" type="x-tmpl-mustache">
     <div class="col s12 m6 l4">
       <div class="card">
         <div id="{{id}}" class="card-image"></div>
         <div class="card-content black-text">
+          {{{content}}}
           <span class="card-title">{{language}}</span>
         </div>
+      </div>
+    </div>
+  </script>
+
+  <script id="modal-template" type="x-tmpl-mustache">
+    <div id="{{modalID}}" class="modal">
+      <div class="modal-content">
+        <h5>{{title}}</h5>
+        <div id="{{contentID}}"></div>
+      </div>
+      <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
       </div>
     </div>
   </script>

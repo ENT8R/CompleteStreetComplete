@@ -35,8 +35,8 @@ $app->get('/get/{id}', function ($request, $response, $args) {
   $json = getFile();
   $id = $request->getAttribute('id');
 
-  if ($json[0][$id]) {
-    return $response->withJson($json[0][$id]);
+  if ($json->$id) {
+    return $response->withJson($json->$id);
   } else {
     return $response->withStatus(404)->withJson(["error" => "Could not find data with specified id!"]);
   }
@@ -46,7 +46,8 @@ $app->get('/get/{id}', function ($request, $response, $args) {
 $app->post('/answer/{id}', function ($request, $response, $args) {
   $file = getFile();
   $id = $request->getAttribute('id');
-  $body = $request->getParsedBody();
+  $requestBody = $request->getBody();
+  $body = json_decode($requestBody);
 
   if (!$id) {
     return $response->withStatus(400)->withJson(["error" => "No id for data specified!"]);
@@ -54,29 +55,29 @@ $app->post('/answer/{id}', function ($request, $response, $args) {
   if (!$body) {
     return $response->withStatus(400)->withJson(["error" => "Can't update data! No request body specified!"]);
   }
-  if (!isset($body['values'])) {
+  if (!isset($body->values)) {
     return $response->withStatus(400)->withJson(["error" => "Request body contains wrong or malformed data!"]);
   }
 
   //Loop through values to set answer and their amounts
   if (getTypeOfDataset($file, $id) != "image") {
-    foreach ($body['values'] as $language => $name) {
+    foreach ($body->values as $language => $name) {
       $amount = 0;
-      if (isset($file[0][$id]['values'][$language][$name])) {
+      if (isset($file->$id->values->$language->$name)) {
         $amount = getAmount($file, $id, $language, $name);
       }
-      $file[0][$id]['values'][$language][$name] = $amount + 1;
+      $file->$id->values->$language->$name = $amount + 1;
     }
   } else {
-    foreach ($body['values'] as $language => $urls) {
-      if ($file[0][$id]['values'][$language]) {
+    foreach ($body->values as $language => $urls) {
+      if ($file->$id->values->$language) {
         foreach ($urls as $singleUrl) {
-          if (!isset($file[0][$id]['values'][$language]) && !$file[0][$id]['values'][$language][$singleUrl]) {
-            array_push($file[0][$id]['values'][$language], $singleUrl);
+          if (!isset($file->$id->values->$language) && !$file->$id->values->$language->$singleUrl) {
+            array_push($file->$id->values->$language, $singleUrl);
           }
         }
       } else {
-        $file[0][$id]['values'][$language] = $urls;
+        $file->$id->values->$language = $urls;
       }
     }
   }
@@ -94,8 +95,8 @@ $app->delete('/delete/{id}', function ($request, $response, $args) {
     return $response->withStatus(400)->withJson(["error" => "No id for data specified!"]);
   }
 
-  if ($json[0][$id]) {
-    unset($json[0][$id]);
+  if ($json->$id) {
+    unset($json->$id);
     saveFile($json);
     return $response->withJson($json);
   } else {
@@ -107,7 +108,8 @@ $app->delete('/delete/{id}', function ($request, $response, $args) {
 $app->post('/revert/{id}', function ($request, $response, $args) {
   $file = getFile();
   $id = $request->getAttribute('id');
-  $body = $request->getParsedBody();
+  $requestBody = $request->getBody();
+  $body = json_decode($requestBody);
 
   if (!$id) {
     return $response->withStatus(400)->withJson(["error" => "No id for data specified!"]);
@@ -115,21 +117,21 @@ $app->post('/revert/{id}', function ($request, $response, $args) {
   if (!$body) {
     return $response->withStatus(400)->withJson(["error" => "Can't update data! No request body specified!"]);
   }
-  if (!isset($body['values'])) {
+  if (!isset($body->values)) {
     return $response->withStatus(400)->withJson(["error" => "Request body contains wrong or malformed data!"]);
   }
 
   //Loop through values to decrease answer by 1
   if (getTypeOfDataset($file, $id) != "image") {
-    foreach ($body['values'] as $language => $name) {
-      if (isset($file[0][$id]['values'][$language][$name])) {
+    foreach ($body->values as $language => $name) {
+      if (isset($file->$id->values->$language->$name)) {
         $amount = getAmount($file, $id, $language, $name);
 
         //Delete the child "values" from the file if the amount is smaller than or equal to 1
         if ($amount > 1) {
-          $file[0][$id]['values'][$language][$name] = $amount - 1;
+          $file->$id->values->$language->$name = $amount - 1;
         } else {
-          unset($file[0][$id]['values']);
+          unset($file->$id->values);
         }
 
         saveFile($file);
@@ -138,10 +140,10 @@ $app->post('/revert/{id}', function ($request, $response, $args) {
       }
     }
   } else {
-    foreach ($body['values'] as $language => $urls) {
+    foreach ($body->values as $language => $urls) {
       foreach ($urls as $singleUrl) {
-        if (($key = array_search($singleUrl, $file[0][$id]['values'][$language])) !== false) {
-          unset($file[0][$id]['values'][$language][$key]);
+        if (($key = array_search($singleUrl, $file->$id->values->$language)) !== false) {
+          unset($file->$id->values->$language->$key);
           saveFile($file);
         } else {
           return $response->withStatus(404)->withJson(["error" => "No data found for this language and value!"]);
@@ -157,7 +159,8 @@ $app->post('/revert/{id}', function ($request, $response, $args) {
 $app->post('/create/{id}', function ($request, $response, $args) {
   $file = getFile();
   $id = $request->getAttribute('id');
-  $body = $request->getParsedBody();
+  $requestBody = $request->getBody();
+  $body = json_decode($requestBody);
 
   if (!$id) {
     return $response->withStatus(400)->withJson(["error" => "No id for new dataset specified!"]);
@@ -165,25 +168,24 @@ $app->post('/create/{id}', function ($request, $response, $args) {
   if (!$body) {
     return $response->withStatus(400)->withJson(["error" => "Can't create new dataset! No request body specified!"]);
   }
-  if (!isset($body['name']) || !isset($body['type'])) {
+  if (!isset($body->name) || !isset($body->type)) {
     return $response->withStatus(400)->withJson(["error" => "Request body contains wrong or malformed data!"]);
   }
-  if (isset($file[0][$id])) {
+  if (isset($file->$id)) {
     return $response->withStatus(400)->withJson(["error" => "A dataset with this id does already exist!"]);
   }
 
   //Set the name of the dataset
-  $file[0][$id]['name'] = $body['name'];
+  $file->$id->name = $body->name;
 
-  if (isPossibleType($body['type'])) {
+  if (isPossibleType($body->type)) {
     //Set the new type
-    $file[0][$id]['type'] = $body['type'];
+    $file->$id->type = $body->type;
   } else {
     return $response->withStatus(400)->withJson(["error" => "The specified type is not allowed!"]);
   }
 
   saveFile($file);
-
   return $response->withJson($file);
 });
 
@@ -191,7 +193,8 @@ $app->post('/create/{id}', function ($request, $response, $args) {
 $app->post('/update/{id}', function ($request, $response, $args) {
   $file = getFile();
   $id = $request->getAttribute('id');
-  $body = $request->getParsedBody();
+  $requestBody = $request->getBody();
+  $body = json_decode($requestBody);
 
   if (!$id) {
     return $response->withStatus(400)->withJson(["error" => "No id for new dataset specified!"]);
@@ -199,25 +202,24 @@ $app->post('/update/{id}', function ($request, $response, $args) {
   if (!$body) {
     return $response->withStatus(400)->withJson(["error" => "Can't create new dataset! No request body specified!"]);
   }
-  if (!isset($file[0][$id])) {
+  if (!isset($file->$id)) {
     return $response->withStatus(400)->withJson(["error" => "A dataset with this id does not exist!"]);
   }
 
-  if (isset($body['name'])) {
+  if (isset($body->name)) {
     //Set the name of the dataset
-    $file[0][$id]['name'] = $body['name'];
+    $file->$id->name = $body->name;
   }
-  if (isset($body['type'])) {
-    if (isPossibleType($body['type'])) {
+  if (isset($body->type)) {
+    if (isPossibleType($body->type)) {
       //Set the new type
-      $file[0][$id]['type'] = $body['type'];
+      $file->$id->type = $body->type;
     } else {
       return $response->withStatus(400)->withJson(["error" => "The specified type is not allowed!"]);
     }
   }
 
   saveFile($file);
-
   return $response->withJson($file);
 });
 
@@ -227,16 +229,16 @@ function saveFile($file)
 }
 function getFile()
 {
-  return json_decode(file_get_contents('data.json'), true);
+  return json_decode(file_get_contents('data.json'));
 }
 
 function getAmount($file, $id, $language, $name)
 {
-  return $file[0][$id]['values'][$language][$name];
+  return $file->$id->values->$language->$name;
 }
 function getTypeOfDataset($file, $id)
 {
-  return $file[0][$id]['type'];
+  return $file->$id->type;
 }
 function isPossibleType($type)
 {

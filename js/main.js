@@ -6,11 +6,20 @@ const plots = [
 
 const types = [
   'chart',
-  'translation',
-  'image'
+  'image',
+  'translation'
 ]
 
 function init(data) {
+  const containerTemplate = $('#group-template').html();
+  Mustache.parse(containerTemplate);
+
+  const elementTemplate = $('#element-template').html();
+  Mustache.parse(elementTemplate);
+
+  const modalTemplate = $('#modal-template').html();
+  Mustache.parse(modalTemplate);
+
   for (let key in data) {
 
     let item = data[key];
@@ -22,8 +31,6 @@ function init(data) {
 
     let containerID = generateID();
 
-    let containerTemplate = $('#group-template').html();
-    Mustache.parse(containerTemplate);
     let container = Mustache.render(containerTemplate, {
       name: name,
       id: containerID
@@ -36,69 +43,65 @@ function init(data) {
     if (type == types[0]) {
       $('#evaluations').append(container);
     } else if (type == types[1]) {
-      $('#translations').append(container);
-    } else if (type == types[2]) {
       $('#images').append(container);
+    } else if (type == types[2]) {
+      $('#translations').append(container);
     }
 
     for (let language in values) {
       let singleValues = values[language];
 
-      let plot;
-      let labels = [];
-      let data = [];
+      //All types except image questions
+      if (type != types[1]) {
+        let labels = [];
+        let data = [];
 
-      for (let answer in singleValues) {
-        let amount = singleValues[answer];
-        labels.push(answer);
-        data.push(amount);
+        for (let answer in singleValues) {
+          let amount = singleValues[answer];
+          labels.push(answer);
+          data.push(amount);
+        }
+
+        const plotID = generateID();
+        const rendered = Mustache.render(elementTemplate, {
+          language: language,
+          id: plotID
+        });
+
+        if (!$('#content').is(":visible")) $('#content').show();
+
+        $('#' + containerID).append(rendered);
+
+        //Initialize a new plot
+        Plotly.newPlot(plotID, getPlot(Math.floor(Math.random() * plots.length), labels, data), null, {
+          displayModeBar: false
+        });
       }
+      //Images questions
+      else
+      {
+        const modalID = generateID();
+        const contentID = generateID();
 
-      switch (plots[Math.floor(Math.random() * plots.length)]) {
-        case plots[0]:
-          plot = [{
-            x: labels,
-            y: data,
-            type: 'bar'
-          }];
-          break;
+        const renderedCard = Mustache.render(elementTemplate, {
+          language: language,
+          content: '<a href="#' + modalID + '" class="waves-effect waves-light indigo btn modal-trigger">Show images</a>'
+        });
+        if (!$('#content').is(":visible")) $('#content').show();
+        $('#' + containerID).append(renderedCard);
 
-        case plots[1]:
-          plot = [{
-            x: data,
-            y: labels,
-            type: 'bar',
-            orientation: 'h'
-          }];
-          break;
+        const renderedModal = Mustache.render(modalTemplate, {
+          modalID: modalID,
+          contentID: contentID,
+          title: name + ' (' + language + ')'
+        });
+        $('#modals').append(renderedModal);
+        $('.modal').modal();
 
-        case plots[2]:
-          plot = [{
-            labels: labels,
-            values: data,
-            type: 'pie'
-          }];
-          break;
+        for (let i = 0; i < singleValues.length; i++) {
+          $('#' + contentID).append(getImageHTML(singleValues[i]));
+        }
       }
-
-      let plotID = generateID();
-
-      let plotTemplate = $('#plot-template').html();
-      Mustache.parse(plotTemplate);
-      let rendered = Mustache.render(plotTemplate, {
-        title: name + ' (' + language + ')',
-        language: language,
-        id: plotID
-      });
-
-      if (!$('#content').is(":visible")) $('#content').show();
-
-      $('#' + containerID).append(rendered);
-
-      //Initialize a new plot
-      Plotly.newPlot(plotID, plot, null, {
-        displayModeBar: false
-      });
     }
   }
 }
@@ -110,6 +113,44 @@ function generateID() {
   return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
 }
 
+function getPlot(id, labels, data) {
+  switch (id) {
+    case 0:
+      return [{
+        x: labels,
+        y: data,
+        type: 'bar'
+      }];
+      break;
+    case 1:
+      return [{
+        x: data,
+        y: labels,
+        type: 'bar',
+        orientation: 'h'
+      }];
+      break;
+    case 2:
+      return [{
+        labels: labels,
+        values: data,
+        type: 'pie'
+      }];
+      break;
+    default:
+      return [{
+        x: labels,
+        y: data,
+        type: 'bar'
+      }];
+      break;
+  }
+}
+
+function getImageHTML(url) {
+  return '<a href="' + url + '" target="_blank"><img src="' + url + '" width="200px"></a>&nbsp;';
+}
+
 $.get('api/get', function(data) {
-  init(data[0]);
+  init(data);
 });
