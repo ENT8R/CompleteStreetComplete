@@ -13,6 +13,7 @@ class ComposerStaticInitadf74154b0a2650ac415a9d47a814948
     public static $prefixLengthsPsr4 = array (
         'S' => 
         array (
+            'Symfony\\Component\\Yaml\\' => 23,
             'Slim\\Middleware\\' => 16,
             'Slim\\' => 5,
         ),
@@ -32,6 +33,10 @@ class ComposerStaticInitadf74154b0a2650ac415a9d47a814948
     );
 
     public static $prefixDirsPsr4 = array (
+        'Symfony\\Component\\Yaml\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/yaml',
+        ),
         'Slim\\Middleware\\' => 
         array (
             0 => __DIR__ . '/..' . '/tuupola/slim-basic-auth/src',

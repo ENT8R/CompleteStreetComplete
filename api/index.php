@@ -2,6 +2,8 @@
 
 require 'vendor/autoload.php';
 
+use Symfony\Component\Yaml\Yaml;
+
 $app = new Slim\App();
 
 $app->add(new \Slim\Middleware\HttpBasicAuthentication(array(
@@ -28,6 +30,11 @@ $app->add(new \Slim\Middleware\HttpBasicAuthentication(array(
 //GET the whole JSON file
 $app->get('/get', function ($request, $response, $args) {
   return $response->withJson(getFile());
+});
+
+//GET the whole data file as YAML
+$app->get('/get/yaml', function ($request, $response, $args) {
+  return $response->withHeader('Content-Type', 'text/yaml')->write(Yaml::dump(getFile(), 2, 4, Yaml::DUMP_OBJECT_AS_MAP));
 });
 
 //GET data by id
