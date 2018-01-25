@@ -165,6 +165,8 @@ $app->post('/revert/{id}', function ($request, $response, $args) {
 //Create a new dataset
 $app->post('/create/{id}', function ($request, $response, $args) {
   $file = getFile();
+  $titles = getTitles();
+  //$request->getHeaderLine('Accept-Language')
   $id = $request->getAttribute('id');
   $requestBody = $request->getBody();
   $body = json_decode($requestBody);
@@ -182,8 +184,9 @@ $app->post('/create/{id}', function ($request, $response, $args) {
     return $response->withStatus(400)->withJson(["error" => "A dataset with this id does already exist!"]);
   }
 
-  //Set the name of the dataset
+  //Set the name of the dataset in the normal file and the title file
   $file->$id->name = $body->name;
+  $titles->$id->name = $body->name;
 
   //Set the icon of the quest
   $file->$id->icon = $body->icon;
@@ -196,12 +199,15 @@ $app->post('/create/{id}', function ($request, $response, $args) {
   }
 
   saveFile($file);
+  saveTitles($titles);
   return $response->withJson($file);
 });
 
 //Update an existing dataset
 $app->post('/update/{id}', function ($request, $response, $args) {
   $file = getFile();
+  $titles = getTitles();
+
   $id = $request->getAttribute('id');
   $requestBody = $request->getBody();
   $body = json_decode($requestBody);
@@ -219,6 +225,7 @@ $app->post('/update/{id}', function ($request, $response, $args) {
   if (isset($body->name)) {
     //Set the name of the dataset
     $file->$id->name = $body->name;
+    $titles->$id->name = $body->name;
   }
   if (isset($body->icon)) {
     //Set the icon of the question
@@ -234,6 +241,7 @@ $app->post('/update/{id}', function ($request, $response, $args) {
   }
 
   saveFile($file);
+  saveTitles($titles);
   return $response->withJson($file);
 });
 
@@ -241,9 +249,20 @@ function saveFile($file)
 {
  file_put_contents('data.json', json_encode($file, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 }
+function saveTitles($file, $language='en')
+{
+  file_put_contents('titles/' + $language + '.json', json_encode($file, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+}
 function getFile()
 {
   return json_decode(file_get_contents('data.json'));
+}
+function getTitles($language='en')
+{
+  if (file_exists('titles/' + $language + '.json')) {
+    return json_decode(file_get_contents('titles/' + $language + '.json'));
+  }
+  return json_decode(file_get_contents('titles/en.json'));
 }
 
 function getAmount($file, $id, $language, $name)
