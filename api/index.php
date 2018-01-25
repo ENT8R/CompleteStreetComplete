@@ -29,17 +29,17 @@ $app->add(new \Slim\Middleware\HttpBasicAuthentication(array(
 
 //GET the whole JSON file
 $app->get('/get', function ($request, $response, $args) {
-  return $response->withJson(getFile());
+  return $response->withJson(getFile($request->getHeaderLine('Accept-Language')));
 });
 
 //GET the whole data file as YAML
 $app->get('/get/yaml', function ($request, $response, $args) {
-  return $response->withHeader('Content-Type', 'text/yaml')->write(Yaml::dump(getFile(), 2, 4, Yaml::DUMP_OBJECT_AS_MAP));
+  return $response->withHeader('Content-Type', 'text/yaml')->write(Yaml::dump(getFile($request->getHeaderLine('Accept-Language')), 2, 4, Yaml::DUMP_OBJECT_AS_MAP));
 });
 
 //GET data by id
 $app->get('/get/{id}', function ($request, $response, $args) {
-  $json = getFile();
+  $json = getFile($request->getHeaderLine('Accept-Language'));
   $id = $request->getAttribute('id');
 
   if ($json->$id) {
@@ -47,6 +47,20 @@ $app->get('/get/{id}', function ($request, $response, $args) {
   } else {
     return $response->withStatus(404)->withJson(["error" => "Could not find data with specified id!"]);
   }
+});
+
+//GET questions which are newer than the specified date
+$app->get('/get/time/{time}', function ($request, $response, $args) {
+  $json = getFile($request->getHeaderLine('Accept-Language'));
+  $time = $request->getAttribute('time');
+  return $response->withJson(filterTime($json, $time));
+});
+
+//GET questions which are newer than the specified date as YAML
+$app->get('/get/yaml/time/{time}', function ($request, $response, $args) {
+  $json = getFile($request->getHeaderLine('Accept-Language'));
+  $time = $request->getAttribute('time');
+  return $response->withHeader('Content-Type', 'text/yaml')->write(Yaml::dump(filterTime($json, $time), 2, 4, Yaml::DUMP_OBJECT_AS_MAP));
 });
 
 //POST a new answer
@@ -166,7 +180,7 @@ $app->post('/revert/{id}', function ($request, $response, $args) {
 $app->post('/create/{id}', function ($request, $response, $args) {
   $file = getFile();
   $titles = getTitles();
-  //$request->getHeaderLine('Accept-Language')
+
   $id = $request->getAttribute('id');
   $requestBody = $request->getBody();
   $body = json_decode($requestBody);
@@ -190,6 +204,9 @@ $app->post('/create/{id}', function ($request, $response, $args) {
 
   //Set the icon of the quest
   $file->$id->icon = $body->icon;
+
+  //Set the publication date
+  $file->$id->time = time();
 
   if (isPossibleType($body->type)) {
     //Set the new type
@@ -253,16 +270,21 @@ function saveTitles($file, $language='en')
 {
   file_put_contents('titles/' + $language + '.json', json_encode($file, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 }
-function getFile()
+function getFile($language='en')
 {
-  return json_decode(file_get_contents('data.json'));
-}
-function getTitles($language='en')
-{
-  if (file_exists('titles/' + $language + '.json')) {
-    return json_decode(file_get_contents('titles/' + $language + '.json'));
+  $json = json_decode(file_get_contents('data.json'));
+  $titles = getTitles($language, true);
+  foreach ($titles as $key => $value) {
+    $json->$key->name = $value;
   }
-  return json_decode(file_get_contents('titles/en.json'));
+  return $json;
+}
+function getTitles($language='en', $array=false)
+{
+  if (file_exists('titles/' . $language . '.json')) {
+    return json_decode(file_get_contents('titles/' . $language . '.json'), $array);
+  }
+  return json_decode(file_get_contents('titles/en.json'), $array);
 }
 
 function getAmount($file, $id, $language, $name)
@@ -284,6 +306,16 @@ function isPossibleType($type)
   }
 
   return false;
+}
+
+function filterTime($json, $time)
+{
+  foreach ($json as $key => $value) {
+    if ($time > $value->time) {
+      unset($json->$key);
+    }
+  }
+  return $json;
 }
 
 $app->run();
