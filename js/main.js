@@ -5,7 +5,7 @@ const plots = [
 ];
 
 const types = [
-  'chart',
+  'YesNo',
   'image',
   'translation'
 ]

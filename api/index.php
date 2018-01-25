@@ -175,7 +175,7 @@ $app->post('/create/{id}', function ($request, $response, $args) {
   if (!$body) {
     return $response->withStatus(400)->withJson(["error" => "Can't create new dataset! No request body specified!"]);
   }
-  if (!isset($body->name) || !isset($body->type)) {
+  if (!isset($body->name) || !isset($body->type) || !isset($body->icon)) {
     return $response->withStatus(400)->withJson(["error" => "Request body contains wrong or malformed data!"]);
   }
   if (isset($file->$id)) {
@@ -184,6 +184,9 @@ $app->post('/create/{id}', function ($request, $response, $args) {
 
   //Set the name of the dataset
   $file->$id->name = $body->name;
+
+  //Set the icon of the quest
+  $file->$id->icon = $body->icon;
 
   if (isPossibleType($body->type)) {
     //Set the new type
@@ -217,6 +220,10 @@ $app->post('/update/{id}', function ($request, $response, $args) {
     //Set the name of the dataset
     $file->$id->name = $body->name;
   }
+  if (isset($body->icon)) {
+    //Set the icon of the question
+    $file->$id->icon = $body->icon;
+  }
   if (isset($body->type)) {
     if (isPossibleType($body->type)) {
       //Set the new type
@@ -249,7 +256,7 @@ function getTypeOfDataset($file, $id)
 }
 function isPossibleType($type)
 {
-  if ($type == "chart") {
+  if ($type == "YesNo") {
     return true;
   } else if ($type == "translation") {
     return true;
