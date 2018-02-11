@@ -10,11 +10,5 @@
         "type": "YesNo",
         "icon": "ic_quest_mail",
         "time": 1516891898
-    },
-    "3": {
-        "name": "How do walking signs look like in this country?",
-        "type": "image",
-        "icon": "ic_quest_pedestrian",
-        "time": 1516891898
     }
 }
